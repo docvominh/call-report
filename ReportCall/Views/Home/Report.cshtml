@@ -1,0 +1,81 @@
+﻿@using ReportCall.Models
+@model ReportCall.Models.ReportViewModel
+
+@{
+    ViewBag.Title = "Report";
+}
+
+<style>
+    .margin-bottom-15 {
+        margin-bottom: 15px;
+    }
+
+    .float-left {
+        float: left;
+    }
+
+    .no-padding {
+        padding: 0 !important;
+    }
+</style>
+<h2>Report</h2>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="col-md-6">
+
+            @using (Html.BeginForm("GetReport", "Home", FormMethod.Post, new { id = "myForm" }))
+            {
+            @Html.AntiForgeryToken()
+            <div class="col-md-8 float-left no-padding">
+                <div class="col-md-12 no-padding float-left margin-bottom-15">
+                    <div class="col-md-4 no-padding">
+                        @Html.LabelFor(m => m.AgentIdSubmit, new { @class = "text-bold" })
+                    </div>
+                    <div class="col-md-7">
+                        @Html.DropDownListFor(m => m.AgentIdSubmit, Model.AgentId, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.AgentIdSubmit)
+                    </div>
+                </div>
+
+                <div class="col-md-12 no-padding float-left margin-bottom-15">
+                    <div class="col-md-4 no-padding">
+                        @Html.LabelFor(m => m.SomeIdSubmit, new { @class = "text-bold" })
+                    </div>
+                    <div class="col-md-7">
+                        @Html.DropDownListFor(m => m.SomeIdSubmit, Model.SomeId, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.SomeIdSubmit)
+                    </div>
+                </div>
+
+                <div class="col-md-12 no-padding float-left margin-bottom-15">
+                    <button id="submitButton" type="button" class="btn btn-danger">Submit</button>
+                </div>
+            </div>
+            }
+        </div>
+        <div class="col-md-6">
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    $(function () {
+        $('#submitButton').click(function () {
+                $.ajax({
+                    url: $('#myForm').attr('action'),
+                    type: $('#myForm').attr('method'),
+                    data: $('#myForm').serialize(),
+                    success: function (result) {
+                        console.log(result.message)
+                    },
+                    error: function () {
+                        alert('error !')
+                    }
+                });
+        });
+    });
+</script>
