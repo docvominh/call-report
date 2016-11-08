@@ -18,7 +18,31 @@
         padding: 0 !important;
     }
 </style>
-<h2>Report</h2>
+<h2>TEST</h2>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="col-md-6">
+
+            @using (Html.BeginForm("TestReport", "Home", FormMethod.Post, new { id = "myFormTest" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="col-md-8 float-left no-padding">
+                    <div class="col-md-12 no-padding float-left margin-bottom-15">
+                       <input id="someText" type="text" name="sometext" class="form-control" />
+                    </div>
+
+                    
+                    <div class="col-md-12 no-padding float-left margin-bottom-15">
+                        <button id="submitTest" type="button" class="btn btn-danger">Test</button>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="col-md-6">
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-md-12">
@@ -27,32 +51,32 @@
 
             @using (Html.BeginForm("GetReport", "Home", FormMethod.Post, new { id = "myForm" }))
             {
-            @Html.AntiForgeryToken()
-            <div class="col-md-8 float-left no-padding">
-                <div class="col-md-12 no-padding float-left margin-bottom-15">
-                    <div class="col-md-4 no-padding">
-                        @Html.LabelFor(m => m.AgentIdSubmit, new { @class = "text-bold" })
+                @Html.AntiForgeryToken()
+                <div class="col-md-8 float-left no-padding">
+                    <div class="col-md-12 no-padding float-left margin-bottom-15">
+                        <div class="col-md-4 no-padding">
+                            @Html.LabelFor(m => m.AgentIdSubmit, new { @class = "text-bold" })
+                        </div>
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(m => m.AgentIdSubmit, Model.AgentId, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.AgentIdSubmit)
+                        </div>
                     </div>
-                    <div class="col-md-7">
-                        @Html.DropDownListFor(m => m.AgentIdSubmit, Model.AgentId, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.AgentIdSubmit)
-                    </div>
-                </div>
 
-                <div class="col-md-12 no-padding float-left margin-bottom-15">
-                    <div class="col-md-4 no-padding">
-                        @Html.LabelFor(m => m.SomeIdSubmit, new { @class = "text-bold" })
+                    <div class="col-md-12 no-padding float-left margin-bottom-15">
+                        <div class="col-md-4 no-padding">
+                            @Html.LabelFor(m => m.SomeIdSubmit, new { @class = "text-bold" })
+                        </div>
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(m => m.SomeIdSubmit, Model.SomeId, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.SomeIdSubmit)
+                        </div>
                     </div>
-                    <div class="col-md-7">
-                        @Html.DropDownListFor(m => m.SomeIdSubmit, Model.SomeId, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.SomeIdSubmit)
-                    </div>
-                </div>
 
-                <div class="col-md-12 no-padding float-left margin-bottom-15">
-                    <button id="submitButton" type="button" class="btn btn-danger">Submit</button>
+                    <div class="col-md-12 no-padding float-left margin-bottom-15">
+                        <button id="submitButton" type="button" class="btn btn-danger">Submit</button>
+                    </div>
                 </div>
-            </div>
             }
         </div>
         <div class="col-md-6">
@@ -63,19 +87,39 @@
 <script>
 
 
+    var reportURL = "@Url.Action("DownloadReport", "Home")";
+
     $(function () {
         $('#submitButton').click(function () {
-                $.ajax({
-                    url: $('#myForm').attr('action'),
-                    type: $('#myForm').attr('method'),
-                    data: $('#myForm').serialize(),
-                    success: function (result) {
-                        console.log(result.message)
-                    },
-                    error: function () {
-                        alert('error !')
-                    }
-                });
+            $.ajax({
+                url: $('#myForm').attr('action'),
+                type: $('#myForm').attr('method'),
+                data: $('#myForm').serialize(),
+                success: function (result) {
+                    console.log(result.message)
+                },
+                error: function () {
+                    alert('error !')
+                }
+            });
+        });
+
+        $('#submitTest').click(function () {
+
+            var input = $('#someText').val();
+            $.ajax({
+                url: $('#myFormTest').attr('action'),
+                type: $('#myFormTest').attr('method'),
+                data: $('#myFormTest').serialize(),
+                success: function (result) {
+                    var des = reportURL + "?sometext=" + input
+                    console.log(des);
+                    window.location = des;
+                },
+                error: function () {
+                    alert('error !')
+                }
+            });
         });
     });
 </script>

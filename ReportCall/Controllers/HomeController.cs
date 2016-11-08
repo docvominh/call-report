@@ -25,9 +25,40 @@ namespace ReportCall.Controllers
         }
 
         [HttpPost]
+        public ActionResult TestReport(string sometext)
+        {
+            return Json(new { message = sometext }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DownLoadReport(string sometext)
+        {
+            string result = string.Empty;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(@"http://localhost:8080/birt/frameset?__report=report\test.rptdesign&__format=pdf&user=" + sometext);
+            request.Method = "GET";
+            request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+            request.ContentLength = 0;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    MemoryStream ms = new MemoryStream();
+                    stream.CopyTo(ms);
+
+                    Response.Buffer = true;
+                    Response.ClearContent();
+                    Response.ClearHeaders();
+
+                    ms.Seek(0, SeekOrigin.Begin);
+                    return File(ms, "application/pdf", sometext + ".pdf");
+                }
+            }
+        }
+
+        [HttpPost]
         public JsonResult GetReport(ReportViewModel model)
         {
-
             System.Diagnostics.Debug.WriteLine(RequestGET("http://dantri.com.vn:80"));
             return Json(new { message = "fucking success" }, JsonRequestBehavior.AllowGet);
         }
@@ -87,11 +118,11 @@ namespace ReportCall.Controllers
         private string RequestGET(string url)
         {
             string result = string.Empty;
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "GET";
             request.ContentLength = 0;
 
-            using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -103,45 +134,77 @@ namespace ReportCall.Controllers
             return result;
         }
 
-        private string RequestPOST(string url)
+        private string RequestGetStream(string url)
+        {
+            string result = string.Empty;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            request.ContentLength = 0;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    result = reader.ReadToEnd();
+                }
+            }
+            return result;
+        }
+
+        private Stream RequestPOST(string url, string reportParameter)
         {
             string result = string.Empty;
 
             // Create a request using a URL that can receive a post.
             WebRequest request = WebRequest.Create("http://dantri.com.vn ");
+
             // Set the Method property of the request to POST.
             request.Method = "POST";
+
             // Create POST data and convert it to a byte array.
-            string postData = "This is a test that posts this string to a Web server.";
+            string postData = reportParameter;
             byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+
             // Set the ContentType property of the WebRequest.
-            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+
             // Set the ContentLength property of the WebRequest.
             request.ContentLength = byteArray.Length;
+
             // Get the request stream.
             Stream dataStream = request.GetRequestStream();
+
             // Write the data to the request stream.
             dataStream.Write(byteArray, 0, byteArray.Length);
+
             // Close the Stream object.
             dataStream.Close();
+
             // Get the response.
             WebResponse response = request.GetResponse();
+
             // Display the status.
             System.Diagnostics.Debug.WriteLine("Display the status." + ((HttpWebResponse)response).StatusDescription);
+
             // Get the stream containing content returned by the server.
             dataStream = response.GetResponseStream();
+
             // Open the stream using a StreamReader for easy access.
             StreamReader reader = new StreamReader(dataStream);
+
             // Read the content.
             string responseFromServer = reader.ReadToEnd();
+
             // Display the content.
             System.Diagnostics.Debug.WriteLine(responseFromServer);
+
             // Clean up the streams.
             reader.Close();
-            dataStream.Close();
+            //dataStream.Close();
             response.Close();
 
-            return result;
+            return dataStream;
         }
     }
 }
